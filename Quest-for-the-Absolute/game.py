@@ -1,3 +1,4 @@
+
 # =========================
 # IMPORTS
 # =========================
@@ -31,11 +32,11 @@ clock = pygame.time.Clock()
 # =========================
 
 start_img = pygame.image.load(
-    'Quest-for-the-Absolute/images/start.png'
+    "Quest-for-the-Absolute/images/start.png"
 ).convert_alpha()
 
 exit_img = pygame.image.load(
-    'Quest-for-the-Absolute/images/exit.png'
+    "Quest-for-the-Absolute/images/exit.png"
 ).convert_alpha()
 
 
@@ -43,7 +44,7 @@ exit_img = pygame.image.load(
 # BUTTON CLASS
 # =========================
 
-class Button():
+class Button:
 
     def __init__(self, x, y, image, scale):
 
@@ -52,7 +53,10 @@ class Button():
 
         self.image = pygame.transform.scale(
             image,
-            (int(width * scale), int(height * scale))
+            (
+                int(width * scale),
+                int(height * scale)
+            )
         )
 
         self.rect = self.image.get_rect()
@@ -60,14 +64,13 @@ class Button():
 
         self.clicked = False
 
-
     def draw(self):
 
         action = False
 
         Screen.blit(
             self.image,
-            (self.rect.x, self.rect.y)
+            self.rect
         )
 
         pos = pygame.mouse.get_pos()
@@ -76,7 +79,7 @@ class Button():
 
             if pygame.mouse.get_pressed()[0] == 1:
 
-                if self.clicked == False:
+                if not self.clicked:
 
                     self.clicked = True
                     action = True
@@ -89,7 +92,7 @@ class Button():
 
 
 # =========================
-# CREATE BUTTONS
+# CREATE MENU BUTTONS
 # =========================
 
 start_button = Button(
@@ -119,9 +122,8 @@ current_town = "MossyBurrow"
 current_area = "Home"
 current_room = "Bedroom"
 
-dialogue_active = False
 dialogue_npc = None
-dialogue_index = 0
+dialogue_index = "start"
 
 
 # =========================
@@ -185,69 +187,97 @@ npcs = {
 
         "name": "Father",
 
-        "dialogue": [
+        "dialogue": {
 
-            {
+            "start": {
+
                 "text": "You finally woke up.",
-                "next": 1
+
+                "next": "talk"
             },
 
-            {
+            "talk": {
+
                 "text": "We need to talk.",
-                "next": 2
+
+                "next": "question"
             },
 
-            {
+            "question": {
+
                 "text": "What do you say?",
 
                 "choices": [
 
                     {
                         "text": "What's happening?",
-                        "next": 3
+                        "next": "whats_happening"
                     },
 
                     {
                         "text": "I'm listening.",
-                        "next": 5
+                        "next": "listening"
                     },
 
                     {
                         "text": "Let me sleep.",
-                        "next": 7
+                        "next": "sleep"
                     }
-
                 ]
             },
 
-            {
-                "text": "Something is wrong with the village.",
-                "next": 4
+            "whats_happening": {
+
+                "text":
+                "Something is wrong with the village.",
+
+                "next": "village_strange"
             },
 
-            {
-                "text": "The village has been acting strange lately."
+            "village_strange": {
+
+                "text":
+                "The village has been acting strange lately.",
+
+                "next": "end"
             },
 
-            {
-                "text": "Good. Then listen carefully.",
-                "next": 6
+            "listening": {
+
+                "text":
+                "Good. Then listen carefully.",
+
+                "next": "something_happened"
             },
 
-            {
-                "text": "Something happened last night."
+            "something_happened": {
+
+                "text":
+                "Something happened last night.",
+
+                "next": "end"
             },
 
-            {
-                "text": "There's no time for games.",
-                "next": 8
+            "sleep": {
+
+                "text":
+                "There's no time for games.",
+
+                "next": "regret"
             },
 
-            {
-                "text": "Fine, but you will regret this...."
+            "regret": {
+
+                "text":
+                "Fine, but you will regret this..."
+            },
+
+            "end": {
+
+                "text":
+                "..."
             }
-
-        ]
+        }
     }
 }
 
@@ -277,22 +307,6 @@ def get_current_room():
 
 
 # =========================
-# FONT
-# =========================
-
-font = pygame.font.Font(None, 28)
-
-
-# =========================
-# DRAW BACKGROUND
-# =========================
-
-def draw():
-
-    Screen.fill("dark green")
-
-
-# =========================
 # START DIALOGUE
 # =========================
 
@@ -302,7 +316,56 @@ def start_dialogue(npc):
     global dialogue_index
 
     dialogue_npc = npc
-    dialogue_index = 0
+    dialogue_index = "start"
+
+
+# =========================
+# FONT
+# =========================
+
+font = pygame.font.Font(None, 28)
+
+
+# =========================
+# DRAW MENU
+# =========================
+
+def draw():
+
+    Screen.fill("dark green")
+
+
+# =========================
+# DRAW GAME
+# =========================
+
+def draw_game():
+
+    Screen.fill("dark green")
+
+    room = get_current_room()
+
+    room_name = font.render(
+        current_room,
+        True,
+        "white"
+    )
+
+    Screen.blit(
+        room_name,
+        (20, 20)
+    )
+
+    description = font.render(
+        room["description"],
+        True,
+        "white"
+    )
+
+    Screen.blit(
+        description,
+        (20, 60)
+    )
 
 
 # =========================
@@ -317,7 +380,25 @@ def draw_dialogue():
 
     dialogue = npcs[dialogue_npc]["dialogue"][dialogue_index]
 
-    line = dialogue["text"]
+    dialogue_box = pygame.Rect(
+        20,
+        270,
+        472,
+        220
+    )
+
+    pygame.draw.rect(
+        Screen,
+        "black",
+        dialogue_box
+    )
+
+    pygame.draw.rect(
+        Screen,
+        "white",
+        dialogue_box,
+        2
+    )
 
     name = font.render(
         npcs[dialogue_npc]["name"],
@@ -331,7 +412,7 @@ def draw_dialogue():
     )
 
     text = font.render(
-        line,
+        dialogue["text"],
         True,
         "white"
     )
@@ -341,6 +422,10 @@ def draw_dialogue():
         (40, 330)
     )
 
+    # =========================
+    # DIALOGUE CHOICES
+    # =========================
+
     if "choices" in dialogue:
 
         choices = dialogue["choices"]
@@ -348,13 +433,26 @@ def draw_dialogue():
         for i, choice in enumerate(choices):
 
             x = 40 + (i % 2) * 220
-            y = 400 + (i // 2) * 55
+            y = 370 + (i // 2) * 55
 
             draw_choice(
                 choice["text"],
                 x,
                 y
             )
+
+    else:
+
+        continue_text = font.render(
+            "Click to continue",
+            True,
+            "gray"
+        )
+
+        Screen.blit(
+            continue_text,
+            (40, 400)
+        )
 
 
 # =========================
@@ -370,11 +468,27 @@ def draw_choice(text, x, y):
         45
     )
 
-    pygame.draw.rect(
-        Screen,
-        "dark gray",
-        rect
-    )
+    if rect.collidepoint(
+        pygame.mouse.get_pos()
+    ):
+
+        pygame.draw.rect(
+            Screen,
+            "gray",
+            rect
+        )
+
+        pygame.mouse.set_cursor(
+            pygame.SYSTEM_CURSOR_HAND
+        )
+
+    else:
+
+        pygame.draw.rect(
+            Screen,
+            "dark gray",
+            rect
+        )
 
     choice_text = font.render(
         text,
@@ -387,24 +501,126 @@ def draw_choice(text, x, y):
         (x + 10, y + 10)
     )
 
-    if rect.collidepoint(
-        pygame.mouse.get_pos()
-    ):
-
-        pygame.mouse.set_cursor(
-            pygame.SYSTEM_CURSOR_HAND
-        )
-
 
 # =========================
-# DRAW GAME
+# DRAW MOVEMENT BUTTONS
 # =========================
 
-def draw_game():
+def draw_movement_buttons():
 
-    Screen.fill("black")
+    buttons = {}
 
     room = get_current_room()
+
+    # UP
+    if "up" in room["exits"]:
+
+        buttons["up"] = pygame.Rect(
+            221,
+            360,
+            70,
+            45
+        )
+
+        pygame.draw.rect(
+            Screen,
+            "dark gray",
+            buttons["up"]
+        )
+
+        text = font.render(
+            "UP",
+            True,
+            "white"
+        )
+
+        Screen.blit(
+            text,
+            (238, 372)
+        )
+
+    # DOWN
+    if "down" in room["exits"]:
+
+        buttons["down"] = pygame.Rect(
+            221,
+            415,
+            70,
+            45
+        )
+
+        pygame.draw.rect(
+            Screen,
+            "dark gray",
+            buttons["down"]
+        )
+
+        text = font.render(
+            "DOWN",
+            True,
+            "white"
+        )
+
+        Screen.blit(
+            text,
+            (225, 427)
+        )
+
+    # LEFT
+    if "left" in room["exits"]:
+
+        buttons["left"] = pygame.Rect(
+            130,
+            415,
+            70,
+            45
+        )
+
+        pygame.draw.rect(
+            Screen,
+            "dark gray",
+            buttons["left"]
+        )
+
+        text = font.render(
+            "LEFT",
+            True,
+            "white"
+        )
+
+        Screen.blit(
+            text,
+            (138, 427)
+        )
+
+    # RIGHT
+    if "right" in room["exits"]:
+
+        buttons["right"] = pygame.Rect(
+            312,
+            415,
+            70,
+            45
+        )
+
+        pygame.draw.rect(
+            Screen,
+            "dark gray",
+            buttons["right"]
+        )
+
+        text = font.render(
+            "RIGHT",
+            True,
+            "white"
+        )
+
+        Screen.blit(
+            text,
+            (316, 427)
+        )
+
+    return buttons
 
 
 # =========================
@@ -412,10 +628,6 @@ def draw_game():
 # =========================
 
 while True:
-
-    # =========================
-    # EVENTS
-    # =========================
 
     for event in pygame.event.get():
 
@@ -428,63 +640,107 @@ while True:
             pygame.quit()
             exit()
 
+        # =========================
+        # MAIN MENU
+        # =========================
+
+        if not game_started:
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    # START GAME
+                    if start_button.rect.collidepoint(mouse_pos):
+
+                        game_started = True
+
+                        # Father wakes you up immediately
+                        start_dialogue("father")
+
+                    # EXIT GAME
+                    elif exit_button.rect.collidepoint(mouse_pos):
+
+                        pygame.quit()
+                        exit()
 
         # =========================
-        # CHOICE CLICK
+        # GAME
         # =========================
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        else:
 
-            if event.button == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN:
 
-                mouse_pos = pygame.mouse.get_pos()
+                if event.button == 1:
 
-                if dialogue_npc:
+                    mouse_pos = pygame.mouse.get_pos()
 
-                    dialogue = npcs[dialogue_npc]["dialogue"][dialogue_index]
+                    # =========================
+                    # DIALOGUE
+                    # =========================
 
-                    if "choices" in dialogue:
+                    if dialogue_npc:
 
-                        choices = dialogue["choices"]
+                        dialogue = npcs[dialogue_npc]["dialogue"][dialogue_index]
 
-                        for i, choice in enumerate(choices):
+                        # -------------------------
+                        # PLAYER HAS CHOICES
+                        # -------------------------
 
-                            x = 40 + (i % 2) * 220
-                            y = 400 + (i // 2) * 55
+                        if "choices" in dialogue:
 
-                            rect = pygame.Rect(
-                                x,
-                                y,
-                                210,
-                                45
-                            )
-
-                            if rect.collidepoint(
-                                mouse_pos
+                            for i, choice in enumerate(
+                                dialogue["choices"]
                             ):
 
-                                dialogue_index = choice["next"]
+                                x = 40 + (i % 2) * 220
+                                y = 370 + (i // 2) * 55
 
+                                rect = pygame.Rect(
+                                    x,
+                                    y,
+                                    210,
+                                    45
+                                )
 
-        # =========================
-        # GAME EVENTS
-        # =========================
+                                if rect.collidepoint(mouse_pos):
 
-        if game_started:
+                                    dialogue_index = choice["next"]
 
-            if event.type == pygame.KEYDOWN:
+                        # -------------------------
+                        # NORMAL DIALOGUE
+                        # -------------------------
 
-              if event.key == pygame.K_SPACE:
+                        else:
 
-                  dialogue = npcs[dialogue_npc]["dialogue"][dialogue_index]
+                            if "next" in dialogue:
 
-                  if "next" in dialogue:
+                                dialogue_index = dialogue["next"]
 
-                     dialogue_index = dialogue["next"]
+                            else:
 
+                                # Dialogue is finished
+                                dialogue_npc = None
+
+                    # =========================
+                    # MOVEMENT
+                    # =========================
+
+                    else:
+
+                        movement_buttons = draw_movement_buttons()
+
+                        for direction, rect in movement_buttons.items():
+
+                            if rect.collidepoint(mouse_pos):
+
+                                move_player(direction)
 
     # =========================
-    # GAME STARTED
+    # DRAW EVERYTHING
     # =========================
 
     if game_started:
@@ -495,35 +751,16 @@ while True:
 
             draw_dialogue()
 
+        else:
 
-    # =========================
-    # MAIN MENU
-    # =========================
+            draw_movement_buttons()
 
     else:
 
         draw()
 
-        # =========================
-        # START BUTTON
-        # =========================
-
-        if start_button.draw():
-
-            game_started = True
-
-            start_dialogue("father")
-
-
-        # =========================
-        # EXIT BUTTON
-        # =========================
-
-        if exit_button.draw():
-
-            pygame.quit()
-            exit()
-
+        start_button.draw()
+        exit_button.draw()
 
     # =========================
     # UPDATE SCREEN
