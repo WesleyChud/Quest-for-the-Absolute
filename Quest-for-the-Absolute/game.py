@@ -244,7 +244,7 @@ npcs = {
             },
 
             {
-                "text": "Fine. But you're going to regret this sooner or later."
+                "text": "Fine, but you will regret this...."
             }
 
         ]
